@@ -80,6 +80,10 @@ def read() -> Billboard:
 
     return Billboard(films = lfilms, cinemas = lcinemas, projections = lprojections)
 
+def search_by_name(name: str) -> list[Projection]:
+    """ Given a name, returns a list of the projections
+        that include this name in the title of the film"""
+
 def main() -> None:
     billboard = read()
 
