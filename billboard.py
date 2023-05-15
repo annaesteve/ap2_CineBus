@@ -37,14 +37,38 @@ class Billboard:
     projections: list[Projection]
 
 def read() -> Billboard:
-
-    for i in range(0,2):        #recorrem les tres pàgines de Sensacine d'on treuem la informació
-        #read and open url to scrape
-        urlToScrape = "https://https://www.sensacine.com/cines/cines-en-72480/ " + str(i * 10 + 1)"
+    for i in range(3):  # Iterating through three pages of Sensacine
+    # Read and open the URL to scrape
+        urlToScrape = "https://www.sensacine.com/cines/cines-en-72480/ " + str(i * 10 + 1)
         r = ur.urlopen(urlToScrape).read()
         soup = BeautifulSoup(r, "lxml")
+        
+        moviesList = soup.find_all('div', class_="item_resa")
+        
+        for moviesListItem in moviesList:
+            # Extract theater name
+            try:
+                movieTheater = moviesListItem['data-theater']
+                theaterName = movieTheater['name']
+            except KeyError:
+                theaterName = ''
+            
+            # Extract movie data
+            try:
+                movieData = moviesListItem['data-movie']
+                movieTitle = movieData['title']
+            except KeyError:
+                movieTitle = ''
+            
+            # Extract data time
+            try:
+                movieTime = moviesListItem.find('em')['data-times']
+            except KeyError:
+                movieTime = ''
 
-def search_by_name(name: str) -> list[Projection]:
-    """ Given a name, returns a list of the projections
-        that include this name in the title of the film"""
-    
+            # Print the extracted data
+            print("Theater Name:", theaterName)
+            print("Movie Title:", movieTitle)
+            print("Movie Time:", movieTime)
+            print("---")
+
