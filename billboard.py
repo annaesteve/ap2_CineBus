@@ -34,8 +34,8 @@ def read() -> Billboard:
     lcinemas: list[Cinema] = list()
     lprojections: list[Projection] = list()
 
-    for _ in range(3):  # Iterating through three pages of Sensacine
-        urlToScrape = "https://www.sensacine.com/cines/cines-en-72480/"
+    for i in range(1,4):  # Iterating through three pages of Sensacine
+        urlToScrape = "https://www.sensacine.com/cines/cines-en-72480/?page=" + str(i)
         req = ur.Request(urlToScrape, headers={'User-Agent': 'Chrome/35.0.1916.47'})
         r = ur.urlopen(req)
         soup = BeautifulSoup(r, "lxml")
@@ -46,7 +46,7 @@ def read() -> Billboard:
             film_data = movie.find('div', class_='j_w').get('data-movie')
             film_info = json.loads(film_data)
             title = film_info['title']
-            genre = film_info['genre']
+            genre = film_info['genre'][0]
             directors = film_info['directors']
             actors = film_info['actors']
 
@@ -73,10 +73,9 @@ def read() -> Billboard:
             lcinemas.append(cinema)
             lprojections.append(projection)
 
-    print(lprojections)
     # Create Billboard object
     billboard = Billboard(films=lfilms, cinemas=lcinemas, projections=lprojections)
-    
+
     return billboard
 
 
