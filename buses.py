@@ -54,14 +54,14 @@ def define_nodes() -> BusesGraph:
                         llista_nodes_afegits.append(node.name)
                         num_node += 1
                     
-                    if i > 0:
-                        Buses_graph.add_edge(linia.stops[i-1].node, num_node)
-
                     linia.stops.append(node)
+                    
+                    if i > 0:
+                        Buses_graph.add_edge(linia.stops[i-1].node, linia.stops[i].node)
+
                     i += 1
                 linia.id = parada['IdLinia']
     
-    Buses_graph.remove_node(num_node)
     return Buses_graph
 
 def show(g: BusesGraph) -> None:
@@ -78,5 +78,8 @@ if __name__ == '__main__':
     main()
 
 #def get_buses_graph() -> BusesGraph:
+
+
+
 
 #def plo(g: BusesGraph, nom_fitxer:str) -> None:
