@@ -1,16 +1,14 @@
 from typing import TypeAlias, Tuple
 import networkx as nx
-from networkx import MultiDiGraph as MDG
 import osmnx as ox
 import matplotlib as plt 
 import pickle
 import os
-
-
+import buses
 
 CityGraph : TypeAlias = nx.Graph()
 BusesGraph: TypeAlias = nx.Graph()
-OsmnxGraph: TypeAlias = MDG()
+OsmnxGraph: TypeAlias = nx.MultiDiGraph()
 Coord : TypeAlias = Tuple[float, float]   # (latitude, longitude)
 
 def get_osmnx_graph() -> OsmnxGraph:
@@ -41,8 +39,12 @@ def load_osmnx_graph(file_name: str) -> OsmnxGraph:
 
     return loaded_graph
 
-def build_city_graph(g1: OsmnxGraph, g2: BusesGraph) -> CityGraph: ...
+def build_city_graph(g1: OsmnxGraph, g2: BusesGraph) -> CityGraph:
     # retorna un graf fusió de g1 i g2
+
+    graf = nx.compose(g1,g2)
+    ox.plot_graph(ox.project_graph(graf))
+    plt.show()
 
 #def find_path(ox_g: OsmnxGraph, g: CityGraph, src: Coord, dst: Coord) -> Path: ...
 
@@ -58,6 +60,7 @@ def main() -> None:
     save_osmnx_graph(g, 'graf_barcelona.pickle')
     ox.plot_graph(ox.project_graph(load_osmnx_graph('graf_barcelona.pickle')))
     plt.show()
+    #build_city_graph(load_osmnx_graph('graf_barcelona.pickle'), buses.define_nodes())
     
 
 if __name__ == '__main__':
