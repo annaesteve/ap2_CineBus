@@ -1,4 +1,5 @@
-from typing import TypeAlias, Tuple, Optional
+from typing import TypeAlias, Tuple
+import staticmaps
 import networkx as nx
 import matplotlib.pyplot as plt
 from dataclasses import dataclass, asdict
@@ -64,22 +65,28 @@ def define_nodes() -> BusesGraph:
     
     return Buses_graph
 
+
 def show(g: BusesGraph) -> None:
+    """Shows the graph (g) interatively using networkx.draw"""
     node_positions = nx.get_node_attributes(g, 'coordinate')
     nx.draw(g, pos=node_positions, with_labels=True, node_color='lightblue', edge_color='gray')
     plt.show()
 
+
+def plot(g: BusesGraph, nom_fitxer: str) -> None:
+    """Save the graph(g) as an image with the map of Barcelona (nom_fitxer) on the background"""
+    map = staticmaps.StaticMap(800, 800)
+    map.image = staticmaps.Image.from_file(nom_fitxer)
+    map.add(g)
+    image = map.render()
+    image.save('buses_bcn.png')
+
+
 def main() -> None:
-    g = define_nodes()
-    show(g)
+    show(define_nodes())
 
 
 if __name__ == '__main__':
     main()
 
 #def get_buses_graph() -> BusesGraph:
-
-
-
-
-#def plo(g: BusesGraph, nom_fitxer:str) -> None:
