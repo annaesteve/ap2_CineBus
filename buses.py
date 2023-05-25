@@ -1,12 +1,9 @@
-from typing import TypeAlias, Tuple
-import staticmaps
+from typing import TypeAlias, Tuple, Optional
 import networkx as nx
 import matplotlib.pyplot as plt
 from dataclasses import dataclass, asdict
-from bs4 import BeautifulSoup
 import urllib.request as ur
 import requests
-import json
 
 BusesGraph: TypeAlias = nx.Graph()
 
@@ -19,7 +16,7 @@ class Stop:
 
 @dataclass
 class Line:
-    id: int
+    nom: str
     stops: list[Stop]
 
 def create_stop(parada: dict[str, int|str], num_node:int) -> Stop:
@@ -27,14 +24,14 @@ def create_stop(parada: dict[str, int|str], num_node:int) -> Stop:
     node_linies: list[str] = list() 
     for l in parada['Linies'].split(' - '):
         node_linies.append(l)
-    node_coordenades = (parada['UTM_X'], parada['UTM_Y'])
+    node_coordenades = (parada['UTM_Y'], parada['UTM_X'])
     node = Stop(node_nom, node_linies, node_coordenades, num_node)
 
     return node
 
 
 def define_nodes() -> BusesGraph:
-    Buses_graph = BusesGraph
+    Buses_graph: BusesGraph() = BusesGraph
     urlToScrape = "https://www.ambmobilitat.cat/OpenData/ObtenirDadesAMB.json"
     response = requests.get(urlToScrape)
     data = response.json()
@@ -42,7 +39,7 @@ def define_nodes() -> BusesGraph:
     num_node = 0
     llista_nodes_afegits:list[str] = list()
     if 'ObtenirDadesAMBResult' in data:
-        lines = data['ObtenirDadesAMBResult']['Linies']['Linia']
+        lines = data['ObtenirDadesAMBResult']['Linies']['Linia'] 
         for line in lines:
             if line['Parades']['Parada'][0]['Municipi'] == 'Barcelona':
                 linia: Line = Line(0,[])
@@ -56,37 +53,31 @@ def define_nodes() -> BusesGraph:
                         num_node += 1
                     
                     linia.stops.append(node)
-                    
-                    if i > 0:
+                    if i > 0 and linia.stops[i-1].node != linia.stops[i].node:
                         Buses_graph.add_edge(linia.stops[i-1].node, linia.stops[i].node)
 
                     i += 1
-                linia.id = parada['IdLinia']
+                linia.nom = line['Nom']
     
     return Buses_graph
 
-
 def show(g: BusesGraph) -> None:
-    """Shows the graph (g) interatively using networkx.draw"""
     node_positions = nx.get_node_attributes(g, 'coordinate')
-    nx.draw(g, pos=node_positions, with_labels=True, node_color='lightblue', edge_color='gray')
+    #nx.draw_networkx_edges(g, pos=node_positions )
+    nx.draw(g, pos=node_positions, with_labels=True, edge_color='gray')
     plt.show()
 
-
-def plot(g: BusesGraph, nom_fitxer: str) -> None:
-    """Save the graph(g) as an image with the map of Barcelona (nom_fitxer) on the background"""
-    map = staticmaps.StaticMap(800, 800)
-    map.image = staticmaps.Image.from_file(nom_fitxer)
-    map.add(g)
-    image = map.render()
-    image.save('buses_bcn.png')
-
-
 def main() -> None:
-    show(define_nodes())
+    g = define_nodes()
+    show(g)
 
 
 if __name__ == '__main__':
     main()
 
 #def get_buses_graph() -> BusesGraph:
+
+
+
+
+#def plo(g: BusesGraph, nom_fitxer:str) -> None
