@@ -1,16 +1,20 @@
 from typing import TypeAlias, Tuple
 import networkx as nx
+import geopandas as gpd
 import osmnx as ox
-import matplotlib as plt 
+import matplotlib.pyplot as plt 
+import spicy as sp
 import pickle
 import os
 import buses
 from dataclasses import dataclass
 
+
 CityGraph : TypeAlias = nx.Graph()
 BusesGraph: TypeAlias = nx.Graph()
 OsmnxGraph: TypeAlias = nx.MultiDiGraph()
 Coord : TypeAlias = Tuple[float, float]   # (latitude, longitude)
+
 
 @dataclass
 class Path:
@@ -18,13 +22,15 @@ class Path:
     final_position: Coord
     distance: int
 
+
 def get_osmnx_graph() -> OsmnxGraph:
     graph = ox.graph_from_place("Barcelona, Spain", network_type='all')
+    
     return graph
 
 
 def save_osmnx_graph(g: OsmnxGraph, file_name: str) -> None:
-    # guarda el graf g al fitxer filename
+    #guarda el graf g al fitxer filename
     #ox.plot_graph(ox.project_graph(g))
     #plt.show()
     with open(file_name, 'wb') as file:
@@ -38,23 +44,25 @@ def save_osmnx_graph(g: OsmnxGraph, file_name: str) -> None:
 
 
 def load_osmnx_graph(file_name: str) -> OsmnxGraph:
-    # retorna el graf guardat al fitxer filename
-
+    #retorna el graf guardat al fitxer filename
     if os.path.exists(file_name):
         with open(file_name, 'rb') as file:
             loaded_graph = pickle.load(file)
+            return loaded_graph
+    return None
 
-    return loaded_graph
 
 def build_city_graph(g1: OsmnxGraph, g2: BusesGraph) -> CityGraph:
     # retorna un graf fusió de g1 i g2
+    g1_nx= nx.Graph(g1)
+    graf = nx.compose(g1_nx,g2)
 
-    graf = nx.compose(g1,g2)
-    ox.plot_graph(ox.project_graph(graf))
+    nx.draw_networkx(graf)
     plt.show()
 
-def find_path(ox_g: OsmnxGraph, g: CityGraph, src: Coord, dst: Coord) -> Path:
+    return graf
 
+def find_path(ox_g: OsmnxGraph, g: CityGraph, src: Coord, dst: Coord) -> Path:
     graph = nx.from_edgeslist(ox_g[['u', 'v', 'key']].values.tolist(), create_using=nx.MultiDiGraph)
     start_node = ox.distance.nearest_nodes(g, src[0], src[1], method='haversine')
     end_node = ox.distance.nearest_nodes(g, dst[0], dst[1], method='haversine')
@@ -62,6 +70,7 @@ def find_path(ox_g: OsmnxGraph, g: CityGraph, src: Coord, dst: Coord) -> Path:
     path = nx.shortest_path(graph, source=start_node, target = end_node, weight = 'lenght')
 
     return path
+
 
 def show(g: CityGraph) -> None:
     # mostra g de forma interactiva en una finestra
@@ -76,9 +85,10 @@ def show(g: CityGraph) -> None:
     # mostra el camí p en l'arxiu filename
 
 def main() -> None:
-    g = get_osmnx_graph()
-    save_osmnx_graph(g, 'graf_barcelona.pickle')
-    #build_city_graph(load_osmnx_graph('graf_barcelona.pickle'), buses.define_nodes())
+    #build_city_graph(get_osmnx_graph(), buses.define_nodes())
+    #g = get_osmnx_graph()
+    #save_osmnx_graph(g, 'graf_barcelona.pickle')
+    build_city_graph(load_osmnx_graph('graf_barcelona.pickle'), buses.define_nodes())
     
 
 if __name__ == '__main__':
