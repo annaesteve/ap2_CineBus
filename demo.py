@@ -14,22 +14,31 @@ def authors() -> None:
     print('Anna Esteve Gallifa i Cristina Teixidó Cruïlles')
 
 
-def create_billboard()-> billboard.Billboard:
+def create_billboard() -> billboard.Billboard:
     """Creates today's billboard"""
+
+    print('Cartellera creada')
     return billboard.read()
 
 
 def show_billboard(B: billboard.Billboard)-> None:
     """Shows today's billboard"""
-    films = [[projection.film.title, projection.film.genre, projection.cinema.name] for projection in B.projections]
-    headers = ['PEL·LÍCULA', 'GÈNERE', 'CINEMA']
+    films = [[film.title, film.genre] for film in B.films]
+    headers = ['PEL·LÍCULA', 'GÈNERE']
     table = tabulate(films, headers, tablefmt = "fancy_grid", numalign = "center", stralign = "left")
     print(table)
 
 
-def cercar_cartellera():
-    ...
+def browse_billboard(l: list[billboard.Projection]) -> None:
+    print('Títol: ', l[0].film.title)
+    print('Gènere: ', l[0].film.genre)
+    print('Director: ', *l[0].film.director)
+    print('Actors: ', *l[0].film.actors, sep=",")
 
+    films = [[projection.cinema.name, projection.cinema.address, str(projection.time[0])+ ':' + str(projection.time[1]), projection.language] for projection in l]
+    headers = ['CINEMA', 'SITUACIÓ', 'HORA', 'IDIOMA']
+    table = tabulate(films, headers, tablefmt = "fancy_grid", numalign = "center", stralign = "left")
+    print(table)
 
 def crear_buses()-> buses.BusesGraph:
     """Crea el graf de les linies de busos de Barcelona"""
@@ -55,20 +64,32 @@ def main()-> None:
     billboard_created = False
     print("""
     1. Autores del projecte 
-    2. Mirar cartellera""")
+    2. Crear cartellera
+    3. Mostrar cartellera
+    4. Buscar pel·lícules segons el títol""")
+    
     for action in yogi.tokens(int):
         if action == 1:
             authors()
+
         elif action == 2:
             B = create_billboard()
             billboard_created = True
+        
         elif action == 3:
             if billboard_created:
                 show_billboard(B)
             else:
                 print('Cartellera no creada')
-        elif action == 2:
-            ...
+        
+        elif action == 4:
+            if billboard_created:
+                print("Escriu el títol de la pel·lícula que t'interessa")
+                name = input()
+                list = billboard.search_by_title(name, B)
+                browse_billboard(list)
+            
+
         elif action == 3:
             ...
         elif action == 2:
