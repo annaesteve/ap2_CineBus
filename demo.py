@@ -3,24 +3,28 @@ import bs4
 import networkx
 import osmnx
 import haversine
-import staticmap
 import billboard
 import city
 import buses
+import yogi
+from tabulate import tabulate
 
-
-def autors() -> None:
-    """Escriu els noms dels autors"""
+def authors() -> None:
+    """Writes the authors of the project"""
     print('Anna Esteve Gallifa i Cristina Teixidó Cruïlles')
 
 
-def crear_cartellera()-> billboard.Billboard:
-    """Crea la cartellera del dia d'avui"""
-    return billboard()
+def create_billboard()-> billboard.Billboard:
+    """Creates today's billboard"""
+    return billboard.read()
 
 
-def mostrar_contingut_cartellera(B: Billboard)-> None:
-    """Mostra el contingut de la cartellera B"""
+def show_billboard(B: billboard.Billboard)-> None:
+    """Shows today's billboard"""
+    films = [[projection.film.title, projection.film.genre, projection.cinema.name] for projection in B.projections]
+    headers = ['PEL·LÍCULA', 'GÈNERE', 'CINEMA']
+    table = tabulate(films, headers, tablefmt = "fancy_grid", numalign = "center", stralign = "left")
+    print(table)
 
 
 def cercar_cartellera():
@@ -46,3 +50,31 @@ def crear_ciutat()-> city.CityGraph:
 def mostrar_cami(ub1: city.Coord, ub2: city.Coord)-> city.Path:
     """Mostra el cami  de ub1 a ub2 (cinema) per arribar a la que comenci abans"""
     city.find_path(g, crear_ciutat()) #QUÈ ÉS G?'
+
+def main()-> None:
+    billboard_created = False
+    print("""
+    1. Autores del projecte 
+    2. Mirar cartellera""")
+    for action in yogi.tokens(int):
+        if action == 1:
+            authors()
+        elif action == 2:
+            B = create_billboard()
+            billboard_created = True
+        elif action == 3:
+            if billboard_created:
+                show_billboard(B)
+            else:
+                print('Cartellera no creada')
+        elif action == 2:
+            ...
+        elif action == 3:
+            ...
+        elif action == 2:
+            ...
+        else:
+            print('Comanda no correcta')
+
+if __name__ == '__main__':
+    main()
