@@ -70,7 +70,8 @@ def create_busesgraph() -> BusesGraph:
                     
                     linia.stops.append(node)
                     if i > 0 and linia.stops[i-1].node != linia.stops[i].node:
-                        Buses_graph.add_edge(linia.stops[i-1].node, linia.stops[i].node, length = haversine_distance(linia.stops[i-1].coordinate, linia.stops[i].coordinate)  )
+                        length = haversine_distance(linia.stops[i-1].coordinate, linia.stops[i].coordinate)
+                        Buses_graph.add_edge(linia.stops[i-1].node, linia.stops[i].node, length = length, time = 0.05*length)
 
                     i += 1
                 linia.nom = line['Nom']
