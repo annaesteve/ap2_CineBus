@@ -16,12 +16,12 @@ def get_osmnx_graph() -> OsmnxGraph:
     return graph
 
 
-def get_simplified_graph_x(g: OsmnxGraph) -> nx.Graph:
+def get_simplified_graph(g: OsmnxGraph) -> nx.Graph:
     epsg_code = 'EPSG:32631'
 
     graph_simplified = nx.Graph()
     
-    graph_simplified.g['crs'] = epsg_code
+    graph_simplified.graph['crs'] = epsg_code
 
     for node, data in g.nodes(data=True):
         x = data['x']
