@@ -4,6 +4,8 @@ import networkx as nx
 import osmnx as ox
 import pickle
 import os
+import staticmap
+import buses
 
 CityGraph : TypeAlias = nx.Graph()
 BusesGraph: TypeAlias = nx.Graph()
@@ -11,12 +13,14 @@ OsmnxGraph: TypeAlias = nx.MultiDiGraph()
 Coord : TypeAlias = Tuple[float, float]   # (longitude, latitude)
 Path: TypeAlias = list[int]         # list of nodes
 
+
 def get_osmnx_graph() -> OsmnxGraph:
     graph = ox.graph_from_place("Barcelona, Spain", network_type='all', truncate_by_edge=True)
     return graph
 
 
 def get_simplified_graph(g: OsmnxGraph) -> nx.Graph:
+    """Converts g to a networkx.graph"""
     epsg_code = 'EPSG:32631'
 
     graph_simplified = nx.Graph()
@@ -39,8 +43,9 @@ def get_simplified_graph(g: OsmnxGraph) -> nx.Graph:
 
     return graph_simplified
 
+
 def save_osmnx_graph(g: OsmnxGraph, file_name: str) -> None:
-    """guarda el graf g al fitxer filename"""
+    """Saves g in a file named filename"""
 
     with open(file_name, 'wb') as file:
         pickle.dump(g, file)
@@ -53,19 +58,19 @@ def save_osmnx_graph(g: OsmnxGraph, file_name: str) -> None:
 
 
 def load_osmnx_graph(file_name: str) -> OsmnxGraph:
-    #retorna el graf guardat al fitxer filename
+    """Returns the graph saved in file_name"""
     if os.path.exists(file_name):
         with open(file_name, 'rb') as file:
             loaded_graph = pickle.load(file)
             return loaded_graph
+
     return None
 
-def build_city_graph(g: OsmnxGraph, g1: nx.Graph, g2: BusesGraph) -> CityGraph:
-    # retorna un graf fusió de g1 i g2
 
+def build_city_graph(g: OsmnxGraph, g1: nx.Graph, g2: BusesGraph) -> CityGraph:
+    """Returns the graph of composing g1 and g2"""
     g1.add_nodes_from(g2.nodes(data=True))
     g1.add_edges_from(g2.edges(data=True))
-
 
     for node, atributtes in g2.nodes(data=True):
         nearest_node = ox.distance.nearest_nodes(g, atributtes['coordinate'][0], atributtes['coordinate'][1])
@@ -73,7 +78,9 @@ def build_city_graph(g: OsmnxGraph, g1: nx.Graph, g2: BusesGraph) -> CityGraph:
 
     return g1
 
+
 def find_path(ox_g: OsmnxGraph, g: CityGraph, src: Coord, dst: Coord) -> Path:
+    """Finds the shorter path to go from src to dst"""
     start_node = ox.distance.nearest_nodes(ox_g, src[0], src[1])
     end_node = ox.distance.nearest_nodes(ox_g, dst[0], dst[1])
 
@@ -81,7 +88,9 @@ def find_path(ox_g: OsmnxGraph, g: CityGraph, src: Coord, dst: Coord) -> Path:
 
     return path
 
+
 def calculate_distance_path(g: CityGraph, path: Path) -> float:
+    """Return the distance of path"""
     distance = 0.0
 
     node = 1
@@ -91,17 +100,46 @@ def calculate_distance_path(g: CityGraph, path: Path) -> float:
     
     return distance
 
+
 def show(g: CityGraph) -> None:
-    # mostra g de forma interactiva en una finestra
+    """Shows g in an interactive way in another window""" 
     nx.draw(g, with_labels=True, node_color='red', node_size=400)
     print('nono')
     plt.show()
     print('bueno potser')
 
 
+def plot(g:nx.Graph, filename: str) -> None:
+    """Saves g in a file named filename as an image with a map of the city as backgroung"""
+    map = staticmap.StaticMap(800,800)
+    
+    #We go through all nodes to draw the stops NODE: (ID, {x: float, y: float} 
+    for _, data in g.nodes(data=True): 
+        coordinate = (data['x'], data['y'])
+        map.add_marker(staticmap.CircleMarker(coordinate, 'red', 3))
 
-#def plot(g: CityGraph, filename: str) -> None: ...
-    # desa g com una imatge amb el mapa de la cuitat de fons en l'arxiu filename
+    #print(g.edges(data=True))
+    #We go through all edges to draw the lines EDGES : [ID_source, ID_dest, {lenght: , geometry:merda})
+    for source, destination in g.edges(data=True):
+        coord_source = (g.nodes[source]['x'], g.nodes[source]['y'])
+        coord_destination = (g.node[destination]['x'], g.node[destination]['y'])
+        map.add_line(staticmap.Line([coord_source, coord_destination], 'blue', 1))
+    
+    #We save the image in a file named nom_fitxer
+    image = map.render()
+    image.save(filename)
+
 
 #def show_path(g: CityGraph, p: Path, filename: str, ...) -> None: ...
     # mostra el camí p en l'arxiu filename
+
+
+def main()-> None:
+    g = get_osmnx_graph()
+    g1 = get_simplified_graph(g)
+    #g2: buses.BusesGraph = buses.create_busesgraph()
+    save_osmnx_graph(g, 'bcn.pickle')
+    plot(g1, "ciutat.png")
+
+if __name__ == '__main__':
+    main()
