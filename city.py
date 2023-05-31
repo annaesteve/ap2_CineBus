@@ -40,6 +40,8 @@ def get_simplified_graph(g: OsmnxGraph) -> nx.Graph:
     for u, v, data in g.edges(data=True):
         selected_attributes = {key: data[key] for key in attributes if key in data}
         graph_simplified.add_edge(u, v, **selected_attributes )
+        length = graph_simplified.edges[u,v]['length'] 
+        graph_simplified.edges[u,v]['time'] = 0.2*length
 
     return graph_simplified
 
@@ -74,7 +76,7 @@ def build_city_graph(g: OsmnxGraph, g1: nx.Graph, g2: BusesGraph) -> CityGraph:
 
     for node, atributtes in g2.nodes(data=True):
         nearest_node = ox.distance.nearest_nodes(g, atributtes['coordinate'][0], atributtes['coordinate'][1])
-        g1.add_edge(node, nearest_node, length= 0.0)
+        g1.add_edge(node, nearest_node, length= 0.0, time=0.0)
 
     return g1
 
@@ -84,7 +86,7 @@ def find_path(ox_g: OsmnxGraph, g: CityGraph, src: Coord, dst: Coord) -> Path:
     start_node = ox.distance.nearest_nodes(ox_g, src[0], src[1])
     end_node = ox.distance.nearest_nodes(ox_g, dst[0], dst[1])
 
-    path: Path = nx.shortest_path(g, source=start_node, target=end_node, weight= 'lenght')
+    path: Path = nx.shortest_path(g, source=start_node, target=end_node, weight= 'time')
 
     return path
 
