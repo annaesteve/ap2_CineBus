@@ -79,8 +79,8 @@ def main()-> None:
     5. Crear graf dels busos de Barcelona
     6. Mostrar el graf dels busos de Barcelona
     7. Obtenir i guardar el graf dels carrers de Barcelona
-    8. Crear el graf dels carrers i dels busos de Barcelona
-    9. Mostrar el graf dels carrers i dels busos de Barcelona
+    8. Mostrar el graf dels carrers de Barcelona
+    9. Crear el graf dels carrers i dels busos de Barcelona
     10. Seleccionar la pel·lícula i el cinema desitjats
     11. Calcular la distància des de la teva ubicació
        al cinema on fan la pel·lícula escollida
@@ -121,16 +121,14 @@ def main()-> None:
             city.save_osmnx_graph(get_city(), 'graf_barcelona.pickle')
             print('Graf dels carrers de Barcelona creat')
 
-
         elif action == 8:
+            show_city(City)
+
+        elif action == 9:
             c = city.load_osmnx_graph('graf_barcelona.pickle')
             simple_graph = city.get_simplified_graph(c)
             City = create_city(c, simple_graph, Buses)
             print('Graf dels carrers i dels busos de Barcelona creat')
-
-
-        elif action == 9:
-            show_city(City)
 
         elif action == 10:
             print('Escriu la pel·lícula que destija anar a veure ')
