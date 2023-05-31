@@ -1,8 +1,8 @@
-from typing import TypeAlias, Tuple, Optional
-import networkx as nx
-import matplotlib.pyplot as plt
 from dataclasses import dataclass, asdict
-import urllib.request as ur
+from math import sin, cos, sqrt, asin
+from typing import TypeAlias, Tuple
+import matplotlib.pyplot as plt
+import networkx as nx
 import requests
 
 BusesGraph: TypeAlias = nx.Graph()
@@ -18,6 +18,18 @@ class Stop:
 class Line:
     nom: str
     stops: list[Stop]
+
+def haversine_distance(src: Tuple[float,float], dst: Tuple[float,float]) -> float:
+    dlat = dst[1] - src[1]
+    dlon = dst[0] - src[0]
+
+    a = sin(dlat/2)**2 + cos(src[1]) * cos(dst[1]) * sin(dlon/2)**2
+    c = 2*asin(sqrt(a))
+
+    r = 6371
+    distance = c*r
+
+    return distance
 
 def create_stop(parada: dict[str, int|str], num_node:int) -> Stop:
     node_nom = parada['Nom']
@@ -54,11 +66,12 @@ def define_nodes() -> BusesGraph:
                     
                     linia.stops.append(node)
                     if i > 0 and linia.stops[i-1].node != linia.stops[i].node:
-                        Buses_graph.add_edge(linia.stops[i-1].node, linia.stops[i].node)
+                        Buses_graph.add_edge(linia.stops[i-1].node, linia.stops[i].node, length = haversine_distance(linia.stops[i-1].coordinate, linia.stops[i].coordinate)  )
 
                     i += 1
                 linia.nom = line['Nom']
     
+    Buses_graph.edges(data=True)
     return Buses_graph
 
 def show(g: BusesGraph) -> None:
@@ -80,4 +93,4 @@ if __name__ == '__main__':
 
 
 
-#def plo(g: BusesGraph, nom_fitxer:str) -> None
+#def plo(g: BusesGraph, nom_fitxer:str) -> None:
