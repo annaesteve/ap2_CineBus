@@ -110,12 +110,3 @@ def search_by_title(name: str, B: Billboard) -> list[Projection]:
             list_films.append(f)
 
     return list_films
-
-
-def main() -> None:
-    billboard = read()
-    print(len(search_by_title('La Sirenita', billboard)))
-
-
-if __name__ == '__main__':
-    main()
