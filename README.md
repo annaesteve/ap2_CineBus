@@ -124,6 +124,63 @@ def plot_buses(g: BusesGraph, nom_fitxer: str) -> None:
 ```
 Aquesta funció guarda en un fitxer anomenat 'nom_fitxer' el graf de busos amb el mapa de Barcelona de fons.
 
+### Consideracions
+* Hem seleccionat les línies de bus de manera que en el graf només apareixin les del municipi de Barcelona. 
 
 ## Mòdul City
-## Mòdul Demo
+El mòdul city és el responsable de proporcionar el graf de ciutat que representa tota la informació necessària per saber anar d'una cruïlla de la ciutat de Barcelona a una altre de la forma més ràpida possible a peu o en bus. El graf de ciutat és un graf no dirigit resultat de la fusió de dos altres grafs: el graf dels carrers de Barcelona (proporcionat pel mòdul osmnx) i el graf de busos (proporcionat pel mòdul buses). El graf de ciutat  del tipus networkx.Graph.
+
+### Funcions
+En aquest mòdul hem creat diverses funcions:
+### Funcions pel graf de carrers de Barcelona
+```ruby
+def get_osmnx_graph() -> OsmnxGraph:
+def get_simplified_graph(g: OsmnxGraph) -> nx.Graph:
+def save_osmnx_graph(g: OsmnxGraph, file_name: str) -> None:
+def load_osmnx_graph(file_name: str) -> OsmnxGraph:
+def plot_city(g:nx.Graph, filename: str) -> None:
+
+```
+Aquestes serveixen per crear, simplificar el graf (passar d'un graf d'osmnx a un de networkx) , guardar-lo a l'ordinado, pujar-lo i guardar-lo amb el mapa de Barcelona de fons, respectivament.
+
+### Funcions pel graf de ciutat
+```ruby
+def build_city_graph(g: OsmnxGraph, g1: nx.Graph, g2: BusesGraph) -> CityGraph:
+def show(g: CityGraph) -> None:
+def plot_city_buses(g: CityGraph, filename: str) -> None:
+```
+La primera crea el graf de la fusió dels altres dos, la següent mostra interectivament el graf i finalment, `plot_city_buses` mostra el graf amb el mapa de Barcelona de fons.
+
+
+### Funions pel path
+```ruby
+def find_path(ox_g: OsmnxGraph, g: CityGraph, src: Coord, dst: Coord) -> Path:
+def calculate_distance_path(g: CityGraph, path: Path) -> float:
+def plot_path(g: CityGraph, p: Path, filename: str) -> None:
+```
+Aquestes, creen, calculen la distància i mostren el camí més curt des de src (l'actual ubicació) a dst (l'ubicació del cinema).
+
+### Altres funcions
+```ruby
+def plot_interactive(filename:str)-> None:
+```
+Aquesta funció serveix per mostrar de manera interactiva un dels anteriors graf (de qualsevol mòdul).
+
+## Mòdul demo
+El mòdul demo conté un programa per provar les funcionalitats dels altres mòduls utilitzant un simple sistema de menús. Té les següents funcionalitats:
+
+* Mostrar el nom del les autores del projecte.
+* Crear la cartellera.
+* Mostrar el contingut de la cartellera.
+* Cercar a la cartellera (segons el títol).
+* Crear el graf de busos.
+* Mostrar el graf de busos.
+* Crear i guardar el graf dels carrers de Barcelona.
+* Crear el graf de ciutat (busos + carrers).
+* Mostrar el graf de ciutat.
+* Crear el camí més curt 
+* Calcular la distància del camí més curt.
+* Mostrar el camí més curt.
+
+## Autores
+Anna Esteve Gallifa i Cristina Teixidó
