@@ -128,7 +128,7 @@ Aquesta funció guarda en un fitxer anomenat 'nom_fitxer' el graf de busos amb e
 * Hem seleccionat les línies de bus de manera que en el graf només apareixin les del municipi de Barcelona. 
 
 ## Mòdul `City`
-El mòdul city és el responsable de proporcionar el graf de ciutat que representa tota la informació necessària per saber anar d'una cruïlla de la ciutat de Barcelona a una altre de la forma més ràpida possible a peu o en bus. El graf de ciutat és un graf no dirigit resultat de la fusió de dos altres grafs: el graf dels carrers de Barcelona (proporcionat pel mòdul osmnx) i el graf de busos (proporcionat pel mòdul buses). El graf de ciutat  del tipus networkx.Graph.
+El mòdul city és el responsable de proporcionar el graf de ciutat que representa tota la informació necessària per saber anar d'una cruïlla de la ciutat de Barcelona a una altre de la forma més ràpida possible a peu o en bus. El graf de ciutat és un graf no dirigit resultat de la fusió de dos altres grafs: el graf dels carrers de Barcelona (proporcionat pel mòdul osmnx) i el graf de busos (proporcionat pel mòdul buses). El graf de ciutat és del tipus networkx.Graph.
 
 ### Funcions
 En aquest mòdul hem creat diverses funcions:
