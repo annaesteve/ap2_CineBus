@@ -9,6 +9,8 @@ import buses
 import yogi
 import cinemas
 from tabulate import tabulate
+from typing import Optional
+import pyfiglet
 
 def authors() -> None:
     """Writes the authors of the project"""
@@ -58,20 +60,27 @@ def create_city(g: city.OsmnxGraph, g1: city.CityGraph, g2: buses.BusesGraph) ->
 def show_city(g: city.CityGraph) -> None:
     city.show(g)
 
-def search_cinema_coord(cinema: str) -> city.Coord:
+def search_cinema_coord(cinema: str) -> Optional[city.Coord]:
     return cinemas.find_cinema_coord(cinema)
-def find_distance(c: city.OsmnxGraph, City: city.CityGraph, src: city.Coord, dst: city.Coord) -> float:
-    p: city.Path = city.find_path(c, City, src, dst)
 
+def find_path(c: city.OsmnxGraph, City: city.CityGraph, src: city.Coord, dst: city.Coord) -> city.Path:
+    return city.find_path(c, City, src, dst)
+
+def find_distance(City: city.CityGraph, p: city.Path) -> float:
     return city.calculate_distance_path(City, p)
 
 def show_path(p: city.Path)-> None:
     """Mostra el cami  de ub1 a ub2 (cinema) per arribar a la que comenci abans"""
     city.show_path(p)
 
-def main()-> None:
-    billboard_created = False
+def introduction(name_user: str) -> None:
     print("""
+    Benvigut/da""", name_user, """al projecte:
+    ELS 13 MANAMENTS""")
+    
+    print("""
+    Aquest projecte té les següents funcions possibles:
+
     1. Autores del projecte 
     2. Crear cartellera
     3. Mostrar cartellera
@@ -79,77 +88,136 @@ def main()-> None:
     5. Crear graf dels busos de Barcelona
     6. Mostrar el graf dels busos de Barcelona
     7. Obtenir i guardar el graf dels carrers de Barcelona
-    8. Mostrar el graf dels carrers de Barcelona
-    9. Crear el graf dels carrers i dels busos de Barcelona
+    8. Crear el graf dels carrers i dels busos de Barcelona
+    9. Mostrar el graf dels carrers i dels busos de Barcelona
     10. Seleccionar la pel·lícula i el cinema desitjats
-    11. Calcular la distància des de la teva ubicació
+    11. Crear el camí més curt per anar fins al cinema escollit
+    12. Calcular la distància des de la teva ubicació
        al cinema on fan la pel·lícula escollida
-    12. Mostrar el camí per arribar al cinema escollit""")
+    13. Mostrar el camí per arribar al cinema escollit 
     
-    for action in yogi.tokens(int):
-        if action == 1:
+    """)
+
+    print("     ", name_user, ",", " escrigui el nombre de l'acció que desitja que aquest projecte faci: ", sep="")
+
+
+def main()-> None:
+    billboard_created = False
+    busos_created = False
+    streets_created = False
+    city_created = False
+    path_created = False
+
+
+    print("     Introdueixi el seu nom: ")
+    name_user = input()
+
+    introduction(name_user)
+    
+    for action in yogi.tokens(str):
+        if action == '1':
             authors()
 
-        elif action == 2:
+        elif action == '2':
             B = create_billboard()
             billboard_created = True
-            print('Cartellera creada')
+            print('     Cartellera creada')
 
         
-        elif action == 3:
+        elif action == '3':
             if billboard_created:
                 show_billboard(B)
             else:
-                print('Cartellera no creada')
+                print("     La cartellera encara s'ha creat. Pulsi 2 per fer-ho.")
         
-        elif action == 4:
+        elif action == '4':
             if billboard_created:
-                print("Escriu el títol de la pel·lícula que t'interessa")
+                print("     ", name_user, ",", " escrigui el títol de la pel·lícula que li interessa", sep="")
                 name = input()
                 list = billboard.search_by_title(name, B)
                 browse_billboard(list)
             
-        elif action == 5:
+        elif action == '5':
             Buses: buses.BusesGraph= create_buses()
-            print('Graf dels busos creat')
+            print('     Graf dels busos creat')
+            busos_created = True
 
         
-        elif action == 6:
-            show_buses(Buses)
+        elif action == '6':
+            if busos_created:
+                show_buses(Buses)
+            else:
+                print("     Encara no s'ha creat el graf dels busos. Pulsi 5 per fer-ho.")
 
-        elif action == 7:
+        elif action == '7':
             city.save_osmnx_graph(get_city(), 'graf_barcelona.pickle')
-            print('Graf dels carrers de Barcelona creat')
+            print('     Graf dels carrers de Barcelona creat')
+            streets_created = True
+            
 
-        elif action == 8:
-            show_city(City)
+        elif action == '8':
+            if streets_created:
+                c = city.load_osmnx_graph('graf_barcelona.pickle')
+                simple_graph = city.get_simplified_graph(c)
+                City = create_city(c, simple_graph, Buses)
+                print('     Graf dels carrers i dels busos de Barcelona creat')
+                city_created = True
 
-        elif action == 9:
-            c = city.load_osmnx_graph('graf_barcelona.pickle')
-            simple_graph = city.get_simplified_graph(c)
-            City = create_city(c, simple_graph, Buses)
-            print('Graf dels carrers i dels busos de Barcelona creat')
+            else:
+                print("     Encara no s'ha creat el graf dels carrers de Barcelona. Pulsi 7 per fer-ho. ")
 
-        elif action == 10:
-            print('Escriu la pel·lícula que destija anar a veure ')
+        elif action == '9':
+            if city_created:
+                show_city(City)
+            
+            else:
+                print("     Encara no s'ha creat el graf dels carrers i dels busos de Barcelona. Pulsi 8 per fer-ho.")
+
+        elif action == '10':
+            print("     ", name_user, ",", " escrigui la pel·lícula que destija anar a veure ", sep="")
             selected_film = input()
 
-            print('Escriu el cinema on desitja anar a veure la película: ', selected_film)
+            print("     ", name_user, ",", " escrigui el cinema on desitja anar a veure la película: ", selected_film, sep="")
             selected_cinema = input()
 
             cinema: city.Coord = search_cinema_coord(selected_cinema)
-            print('Cinema i pel·lícula trobats')
+            
+            while cinema is None:
+                print("     ", name_user, ",", " torni a introduir el nom del cinema: ", sep="")
+                selected_cinema = input()
+                cinema: city.Coord = search_cinema_coord(selected_cinema)
+        
+            print('     Cinema i pel·lícula trobats')
 
         
-        elif action == 11:
-            print('Escriu la teva ubicació en coordenades (UTM)')
-            coord: city.Coord = (yogi.read(float), yogi.read(float))
-            print('La ruta trobada té una distància de ', find_distance(c, City, coord, cinema)//1000, ' km.')
+        elif action == '11':
+            if city_created:
+                print("     ", name_user, ",", " escrigui la seva ubicació en coordenades (longitud, latitud)", sep="")
+                coord: city.Coord = (yogi.read(float), yogi.read(float))
+                path: city.Path = find_path(c, City, coord, cinema)
+                print('     Camí creat')
+            
+            else:
+                print("     Encara no s'ha creat el graf dels carrers i dels busos de Barcelona. Pulsi 8 per fer-ho.")
 
-        elif action == 12:
-            show_path
+
+        elif action == '12':
+            if path_created:
+                print('     La ruta trobada té una distància de ', find_distance(City, path)//1000, ' km.')
+
+            else:
+                print("     Encara no s'ha creat el camí determinat. Pulsi 11 per fer-ho")
+
+        elif action == '13':
+            if path_created:
+                show_path(city, path)
+            
+            else:
+                print("     Encara no s'ha creat el camí determinat")
+
         else:
-            print('Comanda no correcta')
+            print('     Comanda no correcta')
+            print("     ", name_user, ",", " introdueixi un valor vàlid", sep="")
 
 if __name__ == '__main__':
     main()
