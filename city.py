@@ -67,6 +67,24 @@ def load_osmnx_graph(file_name: str) -> OsmnxGraph:
     return None
 
 
+def plot_city(g:nx.Graph, filename: str) -> None:
+    """Saves g in a file named filename as an image with a map of the city as backgroung"""
+    map = staticmap.StaticMap(800,800)
+    #We go through all nodes to draw the crosses
+    for _, data in g.nodes(data=True): 
+        coordinate = (data['x'], data['y'])
+        map.add_marker(staticmap.CircleMarker(coordinate, 'red', 1))
+
+    #We go through all edges to draw the streets
+    for source, destination in g.edges():
+        coord_source = (g.nodes[source]['x'], g.nodes[source]['y'])
+        coord_destination = (g.nodes[destination]['x'], g.nodes[destination]['y'])
+        map.add_line(staticmap.Line([coord_source, coord_destination], 'blue', 1))
+
+    image = map.render() #We save the image in a file named 'filename'
+    image.save(filename)
+
+
 def build_city_graph(g: OsmnxGraph, g1: nx.Graph, g2: BusesGraph) -> CityGraph:
     """Returns the graph of composing g1 and g2"""
     g1.add_nodes_from(g2.nodes(data=True))
@@ -76,9 +94,19 @@ def build_city_graph(g: OsmnxGraph, g1: nx.Graph, g2: BusesGraph) -> CityGraph:
         nearest_node = ox.distance.nearest_nodes(g, atributtes['coordinate'][0], atributtes['coordinate'][1])
         g1.add_edge(node, nearest_node, length= 0.0)
 
-    print(g1)
+    print(g1.nodes(data = True))
     return g1
-    
+
+
+def show(g: CityGraph) -> None:
+    """Displays g in an interactive way""" 
+    nx.draw(g, with_labels=True, node_color='red', node_size=400)
+    plt.show()
+
+
+#def plot_city_buses(g: CityGraph, filename: str) -> None:
+#   """Saves city and buses in a file named filename as an image with a map of the city as backgroung"""
+
 
 def find_path(ox_g: OsmnxGraph, g: CityGraph, src: Coord, dst: Coord) -> Path:
     """Finds the shorter path to go from src to dst"""
@@ -100,34 +128,6 @@ def calculate_distance_path(g: CityGraph, path: Path) -> float:
         node += 1
     
     return distance
-
-
-def show(g: CityGraph) -> None:
-    """Displays g in an interactive way""" 
-    nx.draw(g, with_labels=True, node_color='red', node_size=400)
-    plt.show()
-    
-
-def plot_city(g:nx.Graph, filename: str) -> None:
-    """Saves g in a file named filename as an image with a map of the city as backgroung"""
-    map = staticmap.StaticMap(800,800)
-    #We go through all nodes to draw the crosses
-    for _, data in g.nodes(data=True): 
-        coordinate = (data['x'], data['y'])
-        map.add_marker(staticmap.CircleMarker(coordinate, 'red', 1))
-
-    #We go through all edges to draw the streets
-    for source, destination in g.edges():
-        coord_source = (g.nodes[source]['x'], g.nodes[source]['y'])
-        coord_destination = (g.nodes[destination]['x'], g.nodes[destination]['y'])
-        map.add_line(staticmap.Line([coord_source, coord_destination], 'blue', 1))
-
-    image = map.render() #We save the image in a file named 'filename'
-    image.save(filename)
-
-
-#def plot_city_buses(g: CityGraph, filename: str) -> None:
- #   """Saves city and buses in a file named filename as an image with a map of the city as backgroung"""
 
 
 def plot_path(g: CityGraph, p: Path, filename: str) -> None:
