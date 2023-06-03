@@ -87,7 +87,7 @@ class Stop:
 ```
 Cada node del graf de busos és una dada Stop, on guardem el nom de l'estació, les línies que paren a la parada, les seves coordenades i un "id" del node.
 
-#### Classe `Stop`:
+#### Classe `Line`:
 ```ruby
 @dataclass
 class Line:
@@ -97,6 +97,33 @@ class Line:
 Aquesta classe representa una línia de bus. Amb el seu nom i totes les parades d'aquesta línia.
 
 ### Funcions
+Utilitzem cinc funcions:
+
+```ruby
+def haversine_distance(src: Tuple[float, float], dst: Tuple[float, float]) -> float:
+```
+Aquesta calcula la distancia entre dues coordenades (src i dst)
+
+```ruby
+def create_stop(parada: dict[str, str], num_node: int) -> Stop:
+```
+`create_stop` crea cada parada de bus (sense encara atribuir-la com un node del graf de busos).
+
+```ruby
+def create_busesgraph() -> BusesGraph:
+```
+És la funció principal d'aquest mòdul, fa el web scraping i va afegint cada node i aresta en un networkx.Graph (BusesGraph).
+
+```ruby
+def show(g: BusesGraph) -> None:
+```
+Mostra el graf de busos de forma interactiva.
+
+```ruby
+def plot_buses(g: BusesGraph, nom_fitxer: str) -> None:
+```
+Aquesta funció guarda en un fitxer anomenat 'nom_fitxer' el graf de busos amb el mapa de Barcelona de fons.
+
 
 ## Mòdul City
 ## Mòdul Demo
