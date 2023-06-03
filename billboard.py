@@ -78,9 +78,11 @@ def read() -> Billboard:
                 if film not in lfilms:
                     lfilms.append(film)
 
-                lcinemas.append(cinema)
+                if cinema.address == 'Barcelona':
+                    lcinemas.append(cinema)
 
-                lprojections.append(projection)
+                if projection.cinema.address == 'Barcelona':
+                    lprojections.append(projection)
 
     # Create Billboard object
     billboard = Billboard(films=lfilms, cinemas=lcinemas, projections=lprojections)
