@@ -100,20 +100,13 @@ def introduction(name_user: str) -> None:
 
     print("     ", name_user, ",", " escrigui el nombre de l'acció que desitja que aquest projecte faci: ", sep="")
 
-
-def main()-> None:
+def actions(name_user: str) -> None:
     billboard_created = False
     busos_created = False
     streets_created = False
     city_created = False
     path_created = False
 
-
-    print("     Introdueixi el seu nom: ")
-    name_user = input()
-
-    introduction(name_user)
-    
     for action in yogi.tokens(str):
         if action == '1':
             authors()
@@ -219,5 +212,14 @@ def main()-> None:
             print('     Comanda no correcta')
             print("     ", name_user, ",", " introdueixi un valor vàlid", sep="")
 
+
+def main()-> None:
+    print("     Introdueixi el seu nom: ")
+    name_user = input()
+
+    introduction(name_user)
+    actions(name_user)
+    
+    
 if __name__ == '__main__':
     main()
