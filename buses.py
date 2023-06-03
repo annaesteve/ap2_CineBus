@@ -5,9 +5,9 @@ import matplotlib.pyplot as plt
 import networkx as nx
 import requests
 import staticmap
-import folium
 
-BusesGraph: TypeAlias = nx.Graph()
+
+BusesGraph: TypeAlias = nx.Graph
 
 
 @dataclass
@@ -39,13 +39,13 @@ def haversine_distance(
     return distance
 
 
-def create_stop(parada: dict[str, int | str], num_node: int) -> Stop:
-    """Creates a node (of class Stop) of BusesGraph"""
+def create_stop(parada: dict[str, str], num_node: int) -> Stop:
+    """Creates a node (class Stop) of BusesGraph"""
     node_nom = parada['Nom']
     node_linies: list[str] = list()
-    for linia in parada['Linies'].split(' - '):
+    for linia in str(parada['Linies']).split(' - '):
         node_linies.append(linia)
-    node_coordenades = (parada['UTM_Y'], parada['UTM_X'])
+    node_coordenades = (float(parada['UTM_Y']), float(parada['UTM_X']))
     node = Stop(node_nom, node_linies, node_coordenades, num_node)
 
     return node
@@ -53,7 +53,7 @@ def create_stop(parada: dict[str, int | str], num_node: int) -> Stop:
 
 def create_busesgraph() -> BusesGraph:
     """It creates a BusesGraph doing web scraping"""
-    Buses_graph: BusesGraph() = BusesGraph
+    Buses_graph: BusesGraph = BusesGraph()
     urlToScrape = "https://www.ambmobilitat.cat/OpenData/ObtenirDadesAMB.json"
     response = requests.get(urlToScrape)
     data = response.json()
@@ -64,7 +64,7 @@ def create_busesgraph() -> BusesGraph:
         lines = data['ObtenirDadesAMBResult']['Linies']['Linia']
         for line in lines:
             if line['Parades']['Parada'][0]['Municipi'] == 'Barcelona':
-                linia: Line = Line(0, [])
+                linia: Line = Line('0', [])
                 i = 0
                 for parada in line['Parades']['Parada']:
                     node = create_stop(parada, num_node)
@@ -125,12 +125,3 @@ def plot_buses(g: BusesGraph, nom_fitxer: str) -> None:
 
     image = map.render()  # We save the image in a file named nom_fitxer
     image.save(nom_fitxer)
-
-
-def main() -> None:
-    g = create_busesgraph()
-    plot(g, 'mapa_bus.png')
-
-
-if __name__ == '__main__':
-    main()
