@@ -2,7 +2,7 @@ from typing import TypeAlias, Tuple, Optional
 
 Coord : TypeAlias = Tuple[float, float]   # (longitude, latitude)
 
-def find_cinema_coord(cinema: str) -> Optional(Coord):
+def find_cinema_coord(cinema: str) -> Optional[Coord]:
     if cinema == "Arenas Multicines 3D":
         return (2.149245, 41.3764221)
     
