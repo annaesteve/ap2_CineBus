@@ -2,10 +2,10 @@ from typing import TypeAlias, Tuple
 import matplotlib.pyplot as plt 
 import networkx as nx
 import osmnx as ox
-import pickle
-import os
 import staticmap
+import pickle
 import buses
+import os
 
 CityGraph : TypeAlias = nx.Graph()
 BusesGraph: TypeAlias = nx.Graph()
@@ -41,7 +41,7 @@ def get_simplified_graph(g: OsmnxGraph) -> nx.Graph:
         selected_attributes = {key: data[key] for key in attributes if key in data}
         graph_simplified.add_edge(u, v, **selected_attributes )
         length = graph_simplified.edges[u,v]['length'] 
-        graph_simplified.edges[u,v]['time'] = 0.2*length
+        graph_simplified.edges[u,v]['time'] = 0.15*length
 
     return graph_simplified
 
