@@ -1,8 +1,8 @@
 from dataclasses import dataclass, asdict
-from math import sin, cos, sqrt, atan2, radians
+from math import sin, cos, sqrt, asin
 from typing import TypeAlias, Tuple
 import matplotlib.pyplot as plt
-import networkx as nx
+import networkx as nx 
 import requests
 import staticmap
 
@@ -28,19 +28,14 @@ def haversine_distance(
         src: Tuple[float, float], dst: Tuple[float, float]) -> float:
     """Returns the distance between src and dst using haversine method"""
 
-     # Convert degrees to radians
-    lat1 = radians(src[0])
-    lon1 = radians(src[1])
-    lat2 = radians(dst[0])
-    lon2 = radians(dst[1])
+    dlat = dst[1] - src[1]
+    dlon = dst[0] - src[0]
 
-    # Haversine formula
-    dlon = lon2 - lon1
-    dlat = lat2 - lat1
-    a = sin(dlat/2)**2 + cos(lat1) * cos(lat2) * sin(dlon/2)**2
-    c = 2 * atan2(sqrt(a), sqrt(1-a))
-    radius = 6371  # Radius of the Earth in kilometers. Use 3956 for miles.
-    distance = radius * c
+    a = sin(dlat / 2)**2 + cos(src[1]) * cos(dst[1]) * sin(dlon / 2)**2
+    c = 2 * asin(sqrt(a))
+
+    r = 6371
+    distance = c * r
 
     return distance
 
@@ -52,14 +47,15 @@ def create_stop(parada: dict[str, str], num_node: int) -> Stop:
     node_linies: list[str] = list()
     for linia in str(parada['Linies']).split(' - '):
         node_linies.append(linia)
-    node_coordenades = (float(parada['UTM_X']), float(parada['UTM_Y']))
+    node_coordenades = (float(parada['UTM_Y']), float(parada['UTM_X']))
     node = Stop(node_nom, node_linies, node_coordenades, num_node)
 
     return node
 
 
 def create_busesgraph() -> BusesGraph:
-    """It creates a BusesGraph doing web scraping"""
+    """It creates the BusesGraph doing web scraping"""
+
     Buses_graph: BusesGraph = BusesGraph()
     urlToScrape = "https://www.ambmobilitat.cat/OpenData/ObtenirDadesAMB.json"
     response = requests.get(urlToScrape)
@@ -75,8 +71,11 @@ def create_busesgraph() -> BusesGraph:
                 i = 0
                 for parada in line['Parades']['Parada']:
                     node = create_stop(parada, num_node)
-                    # convert node from class Stop to a dictionary
+                    # Convert node from class Stop to a dictionary
                     node_dict = asdict(node)
+                    # Adds nodes that only have one line, because we surely
+                    # know that they aren't in the graph and if not examines 
+                    # if the node is in the graph
                     if len(node.line) == 1 or node.name \
                             not in llista_nodes_afegits:
                         Buses_graph.add_node(num_node, **node_dict)
@@ -84,6 +83,8 @@ def create_busesgraph() -> BusesGraph:
                         num_node += 1
 
                     linia.stops.append(node)
+                    # Adds the edges between all the stops in a line with 
+                    # time and length attributes
                     if i > 0 and linia.stops[i -
                                              1].node != linia.stops[i].node:
                         length = haversine_distance(
@@ -98,7 +99,6 @@ def create_busesgraph() -> BusesGraph:
                     i += 1
                 linia.nom = line['Nom']
 
-    Buses_graph.edges(data=True)
     return Buses_graph
 
 
@@ -110,28 +110,29 @@ def show(g: BusesGraph) -> None:
 
 
 def plot_buses(g: BusesGraph, map: staticmap.StaticMap) -> None:
-    """Saves g as an image with the map of the city as background
-    in a file named nom_fitxer"""
+    """Draws nodes and edges in a staticmap"""
+
     # We go through all nodes to draw the stops
     for node in g.nodes():
         stop_data = g.nodes[node]
-        coordinate = (stop_data['coordinate'][1], stop_data['coordinate'][0])
+        coordinate = (stop_data['coordinate'][0], stop_data['coordinate'][1])
         map.add_marker(staticmap.CircleMarker(coordinate, 'red', 1))
 
     # We go through all edges to draw the lines
     for source, destination in g.edges():
         coord_source = (
-            g.nodes[source]['coordinate'][1],
-            g.nodes[source]['coordinate'][0])
+            g.nodes[source]['coordinate'][0],
+            g.nodes[source]['coordinate'][1])
         coord_destination = (
-            g.nodes[destination]['coordinate'][1],
-            g.nodes[destination]['coordinate'][0])
+            g.nodes[destination]['coordinate'][0],
+            g.nodes[destination]['coordinate'][1])
         map.add_line(staticmap.Line(
             [coord_source, coord_destination], 'blue', 1))
 
 
 def plotB(g1:BusesGraph, filename: str) -> None:
-    """"""
+    """Saves g1 as an image with the map of the city as background
+    in a file named filename"""
     map = staticmap.StaticMap(800, 800)
     plot_buses(g1, map)
     image = map.render()  # We save the image in a file named filename
