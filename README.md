@@ -168,6 +168,13 @@ def plot_interactive(filename:str)-> None:
 ```
 Aquesta funció serveix per mostrar de manera interactiva un dels anteriors graf (de qualsevol mòdul).
 
+### Consideracions
+En aquest mòdul hem tingut les següents consideracions:
+* La distància entre les parades i les cruïlles és zero.
+* La distància entre parades de bus està calcula a partir del mètode de haversine (distància del taxi).
+* El camí més curt que calcula el projecte és una combinació entre anar a peu i agafar busos (es poden fer diversos transbords).
+* Hem considerat una velocitat de 5 km/h caminant i 20 km/h amb bus 
+
 ## Mòdul `demo`
 El mòdul demo conté un programa per provar les funcionalitats dels altres mòduls utilitzant un simple sistema de menús. Té les següents funcionalitats:
 
