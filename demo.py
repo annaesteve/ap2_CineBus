@@ -81,9 +81,13 @@ def find_distance(City: city.CityGraph, p: city.Path) -> float:
     return city.calculate_distance_path(City, p)
 
 
-def introduction(name_user: str) -> None:
-    """Prints the introduction of the project"""
+def show_path(p: city.Path) -> None:
+    """Mostra el cami  de ub1 a ub2 (cinema) per arribar a la
+    que comenci abans"""
+    city.show_path(p)
 
+
+def introduction(name_user: str) -> None:
     print("""
     Benvigut/da""", name_user, """al projecte:
     ELS 13 MANAMENTS""")
@@ -115,7 +119,11 @@ def introduction(name_user: str) -> None:
 
 
 def actions(name_user: str) -> None:
-    """Does the action that the user selects"""
+    billboard_created = False
+    busos_created = False
+    streets_created = False
+    city_created = False
+    path_created = False
 
     for action in yogi.tokens(str):
         if action == '1':
@@ -123,18 +131,18 @@ def actions(name_user: str) -> None:
 
         elif action == '2':
             B = create_billboard()
+            billboard_created = True
             print('     Cartellera creada')
 
         elif action == '3':
-            try:
+            if billboard_created:
                 show_billboard(B)
-
-            except BaseException:
+            else:
                 print("     La cartellera encara s'ha creat.",
                       "Pulsi 2 per fer-ho.")
 
         elif action == '4':
-            try:
+            if billboard_created:
                 print("     ", name_user, ",",
                       " escrigui el títol de la pel·lícula que li interessa",
                       sep="")
@@ -142,48 +150,41 @@ def actions(name_user: str) -> None:
                 list = billboard.search_by_title(name, B)
                 browse_billboard(list)
 
-            except BaseException:
-                print("     La cartellera encara s'ha creat.",
-                      "Pulsi 2 per fer-ho.")
-
         elif action == '5':
             Buses: buses.BusesGraph = create_buses()
             print('     Graf dels busos creat')
+            busos_created = True
 
         elif action == '6':
-            try:
+            if busos_created:
                 buses.plotB(Buses, 'graf_buses.png')
                 city.plot_interactive('graf_buses.png')
-
-            except BaseException:
+            else:
                 print("     Encara no s'ha creat el graf dels busos. "
                       "Pulsi 5 per fer-ho.")
 
         elif action == '7':
             city.save_osmnx_graph(get_city(), 'graf_barcelona.pickle')
             print('     Graf dels carrers de Barcelona creat')
+            streets_created = True
 
         elif action == '8':
-            try:
+            if streets_created:
                 c = city.load_osmnx_graph('graf_barcelona.pickle')
                 simple_graph = city.get_simplified_graph(c)
                 City = create_city(c, simple_graph, Buses)
                 print('     Graf dels carrers i dels busos de Barcelona creat')
+                city_created = True
 
-            except BaseException:
+            else:
                 print("     Encara no s'ha creat el graf dels carrers "
                       "de Barcelona. Pulsi 7 per fer-ho. ")
 
         elif action == '9':
-            try:
-                city.plotC(
-                    Buses,
-                    city.get_simplified_graph(
-                        city.load_osmnx_graph('graf_barcelona.pickle')),
-                    'graf_buses_city.png')
+            if city_created:
+                city.plotC(Buses, simple_graph, 'graf_buses_city.png')
                 city.plot_interactive('graf_buses_city.png')
-
-            except BaseException:
+            else:
                 print("     Encara no s'ha creat el graf dels carrers i dels "
                       "busos de Barcelona. Pulsi 8 per fer-ho.")
 
@@ -208,7 +209,7 @@ def actions(name_user: str) -> None:
             print('     Cinema i pel·lícula trobats')
 
         elif action == '11':
-            try:
+            if city_created:
                 print("     ", name_user, ",",
                       " escrigui la seva ubicació en coordenades"
                       " (longitud, latitud)", sep="")
@@ -216,26 +217,27 @@ def actions(name_user: str) -> None:
                 if cinema is not None:
                     path: city.Path = find_path(c, City, coord, cinema)
                     print('     Camí creat')
+                    path_created = True
 
-            except BaseException:
+            else:
                 print("     Encara no s'ha creat el graf dels carrers i "
                       "dels busos de Barcelona. Pulsi 8 per fer-ho.")
 
         elif action == '12':
-            try:
+            if path_created:
                 print('     La ruta trobada té una distància de ',
                       find_distance(City, path) // 1000, ' km.')
 
-            except BaseException:
+            else:
                 print("     Encara no s'ha creat el camí determinat. "
                       "Pulsi 11 per fer-ho")
 
         elif action == '13':
-            try:
+            if path_created:
                 city.plot_path(City, path, 'path.png')
                 city.plot_interactive('path.png')
 
-            except BaseException:
+            else:
                 print("     Encara no s'ha creat el camí determinat")
 
         else:
