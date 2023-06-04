@@ -54,7 +54,8 @@ def create_stop(parada: dict[str, str], num_node: int) -> Stop:
 
 
 def create_busesgraph() -> BusesGraph:
-    """It creates a BusesGraph doing web scraping"""
+    """It creates the BusesGraph doing web scraping"""
+
     Buses_graph: BusesGraph = BusesGraph()
     urlToScrape = "https://www.ambmobilitat.cat/OpenData/ObtenirDadesAMB.json"
     response = requests.get(urlToScrape)
@@ -70,8 +71,11 @@ def create_busesgraph() -> BusesGraph:
                 i = 0
                 for parada in line['Parades']['Parada']:
                     node = create_stop(parada, num_node)
-                    # convert node from class Stop to a dictionary
+                    # Convert node from class Stop to a dictionary
                     node_dict = asdict(node)
+                    # Adds nodes that only have one line, because we surely
+                    # know that they aren't in the graph and if not examines 
+                    # if the node is in the graph
                     if len(node.line) == 1 or node.name \
                             not in llista_nodes_afegits:
                         Buses_graph.add_node(num_node, **node_dict)
@@ -79,6 +83,8 @@ def create_busesgraph() -> BusesGraph:
                         num_node += 1
 
                     linia.stops.append(node)
+                    # Adds the edges between all the stops in a line with 
+                    # time and length attributes
                     if i > 0 and linia.stops[i -
                                              1].node != linia.stops[i].node:
                         length = haversine_distance(
@@ -93,7 +99,6 @@ def create_busesgraph() -> BusesGraph:
                     i += 1
                 linia.nom = line['Nom']
 
-    Buses_graph.edges(data=True)
     return Buses_graph
 
 
@@ -105,8 +110,8 @@ def show(g: BusesGraph) -> None:
 
 
 def plot_buses(g: BusesGraph, map: staticmap.StaticMap) -> None:
-    """Saves g as an image with the map of the city as background
-    in a file named nom_fitxer"""
+    """Draws nodes and edges in a staticmap"""
+
     # We go through all nodes to draw the stops
     for node in g.nodes():
         stop_data = g.nodes[node]
@@ -126,7 +131,8 @@ def plot_buses(g: BusesGraph, map: staticmap.StaticMap) -> None:
 
 
 def plotB(g1:BusesGraph, filename: str) -> None:
-    """"""
+    """Saves g1 as an image with the map of the city as background
+    in a file named filename"""
     map = staticmap.StaticMap(800, 800)
     plot_buses(g1, map)
     image = map.render()  # We save the image in a file named filename
