@@ -84,15 +84,15 @@ def plot_city(g: nx.Graph, map: staticmap.StaticMap) -> None:
 
     # We go through all nodes to draw the crosses
     for _, data in g.nodes(data=True):
-        coordinate = (data['x'], data['y'])
+        coordinate = (data['y'], data['x'])
         map.add_marker(staticmap.CircleMarker(coordinate, 'red', 1))
 
     # We go through all edges to draw the streets
     for source, destination in g.edges():
-        coord_source = (g.nodes[source]['x'], g.nodes[source]['y'])
+        coord_source = (g.nodes[source]['y'], g.nodes[source]['x'])
         coord_destination = (
-            g.nodes[destination]['x'],
-            g.nodes[destination]['y'])
+            g.nodes[destination]['y'],
+            g.nodes[destination]['x'])
         map.add_line(staticmap.Line(
             [coord_source, coord_destination], 'blue', 1))
 
@@ -131,8 +131,8 @@ def plotC(g1: buses.BusesGraph, g2: nx.Graph, filename: str) -> None:
 def find_path(ox_g: OsmnxGraph, g: CityGraph, src: Coord, dst: Coord) -> Path:
     """Finds the shorter path to go from src to dst using time parameter"""
 
-    start_node = ox.distance.nearest_nodes(ox_g, src[0], src[1])
-    end_node = ox.distance.nearest_nodes(ox_g, dst[0], dst[1])
+    start_node = ox.distance.nearest_nodes(ox_g, src[1], src[0])
+    end_node = ox.distance.nearest_nodes(ox_g, dst[1], dst[0])
 
     path: Path = nx.shortest_path(g, source=start_node,
                                   target=end_node, weight='time')
