@@ -1,8 +1,3 @@
-import requests
-import bs4
-import networkx
-import osmnx
-import haversine
 import billboard
 import city
 import buses
@@ -10,7 +5,6 @@ import yogi
 import cinemas
 from tabulate import tabulate
 from typing import Optional
-import pyfiglet
 
 
 def authors() -> None:
@@ -39,13 +33,13 @@ def show_billboard(B: billboard.Billboard) -> None:
 def browse_billboard(llista: list[billboard.Projection]) -> None:
     print('Títol: ', llista[0].film.title)
     print('Gènere: ', llista[0].film.genre)
-    print('Director: ', *llista[0].film.director)
-    print('Actors: ', *llista[0].film.actors, sep=",")
+    print('Director: ', ', '.join(llista[0].film.director))
+    print('Actors: ', ', '.join(llista[0].film.actors))
 
     films = [[projection.cinema.name,
               projection.cinema.address,
               str(projection.time[0]) + ':' + str(projection.time[1]),
-              projection.language] for projection in l]
+              projection.language] for projection in llista]
     headers = ['CINEMA', 'SITUACIÓ', 'HORA', 'IDIOMA']
     table = tabulate(
         films,
@@ -174,7 +168,7 @@ def actions(name_user: str) -> None:
                 buses.plot_buses(Buses, 'graf_buses.png')
                 city.plot_interactive('graf_buses.png')
             else:
-                print("     Encara no s'ha creat el graf dels busos."
+                print("     Encara no s'ha creat el graf dels busos. "
                       "Pulsi 5 per fer-ho.")
 
         elif action == '7':
@@ -191,7 +185,7 @@ def actions(name_user: str) -> None:
                 city_created = True
 
             else:
-                print("     Encara no s'ha creat el graf dels carrers"
+                print("     Encara no s'ha creat el graf dels carrers "
                       "de Barcelona. Pulsi 7 per fer-ho. ")
 
         elif action == '9':
@@ -199,7 +193,7 @@ def actions(name_user: str) -> None:
                 city.plot_city(City, 'graf_city.png')
                 city.plot_interactive('graf_city.png')
             else:
-                print("     Encara no s'ha creat el graf dels carrers i dels"
+                print("     Encara no s'ha creat el graf dels carrers i dels "
                       "busos de Barcelona. Pulsi 8 per fer-ho.")
 
         elif action == '10':
@@ -212,17 +206,13 @@ def actions(name_user: str) -> None:
                   selected_film, sep="")
             selected_cinema = input()
 
-            cinema: city.Coord = search_cinema_coord(selected_cinema)
+            cinema: Optional[city.Coord] = search_cinema_coord(selected_cinema)
 
             while cinema is None:
-                print(
-                    "     ",
-                    name_user,
-                    ",",
-                    " torni a introduir el nom del cinema: ",
-                    sep="")
+                print("     ", name_user, ",",
+                      " torni a introduir el nom del cinema: ", sep="")
                 selected_cinema = input()
-                cinema: city.Coord = search_cinema_coord(selected_cinema)
+                cinema = search_cinema_coord(selected_cinema)
 
             print('     Cinema i pel·lícula trobats')
 
@@ -232,8 +222,10 @@ def actions(name_user: str) -> None:
                       " escrigui la seva ubicació en coordenades"
                       " (longitud, latitud)", sep="")
                 coord: city.Coord = (yogi.read(float), yogi.read(float))
-                path: city.Path = find_path(c, City, coord, cinema)
-                print('     Camí creat')
+                if cinema is not None:
+                    path: city.Path = find_path(c, City, coord, cinema)
+                    print('     Camí creat')
+                    path_created = True
 
             else:
                 print("     Encara no s'ha creat el graf dels carrers i "
