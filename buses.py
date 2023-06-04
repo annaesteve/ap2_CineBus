@@ -26,7 +26,8 @@ class Line:
 
 def haversine_distance(
         src: Tuple[float, float], dst: Tuple[float, float]) -> float:
-    """Returns the distance between src and dst"""
+    """Returns the distance between src and dst using haversine method"""
+
     dlat = dst[1] - src[1]
     dlon = dst[0] - src[0]
 
@@ -41,6 +42,7 @@ def haversine_distance(
 
 def create_stop(parada: dict[str, str], num_node: int) -> Stop:
     """Creates a node (class Stop) of BusesGraph"""
+
     node_nom = parada['Nom']
     node_linies: list[str] = list()
     for linia in str(parada['Linies']).split(' - '):
@@ -102,10 +104,9 @@ def show(g: BusesGraph) -> None:
     plt.show()
 
 
-def plot_buses(g: BusesGraph, nom_fitxer: str) -> None:
+def plot_buses(g: BusesGraph, map: staticmap.StaticMap) -> None:
     """Saves g as an image with the map of the city as background
     in a file named nom_fitxer"""
-    map = staticmap.StaticMap(600, 600)
     # We go through all nodes to draw the stops
     for node in g.nodes():
         stop_data = g.nodes[node]
@@ -123,5 +124,10 @@ def plot_buses(g: BusesGraph, nom_fitxer: str) -> None:
         map.add_line(staticmap.Line(
             [coord_source, coord_destination], 'blue', 1))
 
-    image = map.render()  # We save the image in a file named nom_fitxer
-    image.save(nom_fitxer)
+
+def plotB(g1:BusesGraph, filename: str) -> None:
+    """"""
+    map = staticmap.StaticMap(800, 800)
+    plot_buses(g1, map)
+    image = map.render()  # We save the image in a file named filename
+    image.save(filename)
