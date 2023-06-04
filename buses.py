@@ -1,5 +1,5 @@
 from dataclasses import dataclass, asdict
-from math import sin, cos, sqrt, asin
+from math import sin, cos, sqrt, asin, radians
 from typing import TypeAlias, Tuple
 import matplotlib.pyplot as plt
 import networkx as nx 
@@ -28,8 +28,8 @@ def haversine_distance(
         src: Tuple[float, float], dst: Tuple[float, float]) -> float:
     """Returns the distance between src and dst using haversine method"""
 
-    dlat = dst[1] - src[1]
-    dlon = dst[0] - src[0]
+    dlat = radians(dst[1]) - radians(src[1])
+    dlon = radians(dst[0]) - radians(src[0])
 
     a = sin(dlat / 2)**2 + cos(src[1]) * cos(dst[1]) * sin(dlon / 2)**2
     c = 2 * asin(sqrt(a))
@@ -47,7 +47,7 @@ def create_stop(parada: dict[str, str], num_node: int) -> Stop:
     node_linies: list[str] = list()
     for linia in str(parada['Linies']).split(' - '):
         node_linies.append(linia)
-    node_coordenades = (float(parada['UTM_Y']), float(parada['UTM_X']))
+    node_coordenades = (float(parada['UTM_X']), float(parada['UTM_Y']))
     node = Stop(node_nom, node_linies, node_coordenades, num_node)
 
     return node
@@ -115,17 +115,17 @@ def plot_buses(g: BusesGraph, map: staticmap.StaticMap) -> None:
     # We go through all nodes to draw the stops
     for node in g.nodes():
         stop_data = g.nodes[node]
-        coordinate = (stop_data['coordinate'][0], stop_data['coordinate'][1])
+        coordinate = (stop_data['coordinate'][1], stop_data['coordinate'][0])
         map.add_marker(staticmap.CircleMarker(coordinate, 'red', 1))
 
     # We go through all edges to draw the lines
     for source, destination in g.edges():
         coord_source = (
-            g.nodes[source]['coordinate'][0],
-            g.nodes[source]['coordinate'][1])
+            g.nodes[source]['coordinate'][1],
+            g.nodes[source]['coordinate'][0])
         coord_destination = (
-            g.nodes[destination]['coordinate'][0],
-            g.nodes[destination]['coordinate'][1])
+            g.nodes[destination]['coordinate'][1],
+            g.nodes[destination]['coordinate'][0])
         map.add_line(staticmap.Line(
             [coord_source, coord_destination], 'blue', 1))
 
