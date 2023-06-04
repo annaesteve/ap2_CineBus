@@ -31,6 +31,7 @@ def show_billboard(B: billboard.Billboard) -> None:
 
 
 def browse_billboard(llista: list[billboard.Projection]) -> None:
+    """Prints a table with the information of the film choosen"""
     print('Títol: ', llista[0].film.title)
     print('Gènere: ', llista[0].film.genre)
     print('Director: ', ', '.join(llista[0].film.director))
@@ -55,13 +56,8 @@ def create_buses() -> buses.BusesGraph:
     return buses.create_busesgraph()
 
 
-def show_buses(buses: buses.BusesGraph) -> None:
-    """Mostra el graf de les linies de busos de Barcelona"""
-    buses.show(buses)
-    # buses.plot(G_buses, )
-
-
 def get_city() -> city.OsmnxGraph:
+    """Return the graph of the streets of Barcelona"""
     return city.get_osmnx_graph()
 
 
@@ -70,10 +66,6 @@ def create_city(g: city.OsmnxGraph, g1: city.CityGraph,
     """Crea el graf de la ciutat de Barcelona amb les linies
     de busos corresponents"""
     return city.build_city_graph(g, g1, g2)
-
-
-def show_city(g: city.CityGraph) -> None:
-    city.show(g)
 
 
 def search_cinema_coord(cinema: str) -> Optional[city.Coord]:
@@ -165,7 +157,7 @@ def actions(name_user: str) -> None:
 
         elif action == '6':
             if busos_created:
-                buses.plot_buses(Buses, 'graf_buses.png')
+                buses.plotB(Buses, 'graf_buses.png')
                 city.plot_interactive('graf_buses.png')
             else:
                 print("     Encara no s'ha creat el graf dels busos. "
@@ -190,8 +182,8 @@ def actions(name_user: str) -> None:
 
         elif action == '9':
             if city_created:
-                city.plot_city(City, 'graf_city.png')
-                city.plot_interactive('graf_city.png')
+                city.plotC(Buses, simple_graph, 'graf_buses_city.png')
+                city.plot_interactive('graf_buses_city.png')
             else:
                 print("     Encara no s'ha creat el graf dels carrers i dels "
                       "busos de Barcelona. Pulsi 8 per fer-ho.")
@@ -242,7 +234,8 @@ def actions(name_user: str) -> None:
 
         elif action == '13':
             if path_created:
-                show_path(city, path)
+                city.plot_path(City, path, 'path.png')
+                city.plot_interactive('path.png')
 
             else:
                 print("     Encara no s'ha creat el camí determinat")
