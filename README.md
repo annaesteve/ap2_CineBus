@@ -120,9 +120,10 @@ def show(g: BusesGraph) -> None:
 Mostra el graf de busos de forma interactiva.
 
 ```ruby
-def plot_buses(g: BusesGraph, nom_fitxer: str) -> None:
+def plot_buses(g: BusesGraph, map: staticmap.StaticMap) -> None:
+def plotB(g1:BusesGraph, filename: str) -> None:
 ```
-Aquesta funció guarda en un fitxer anomenat 'nom_fitxer' el graf de busos amb el mapa de Barcelona de fons.
+Aquestes funcion guarden en un fitxer anomenat 'filename' el graf de busos amb el mapa de Barcelona de fons.
 
 ### Consideracions
 * Hem seleccionat les línies de bus de manera que en el graf només apareixin les del municipi de Barcelona. 
@@ -147,9 +148,10 @@ Aquestes serveixen per crear, simplificar el graf (passar d'un graf d'osmnx a un
 ```ruby
 def build_city_graph(g: OsmnxGraph, g1: nx.Graph, g2: BusesGraph) -> CityGraph:
 def show(g: CityGraph) -> None:
-def plot_city_buses(g: CityGraph, filename: str) -> None:
+def plot_city(g: nx.Graph, map: staticmap.StaticMap) -> None:
+def plotC(g1: buses.BusesGraph, g2: nx.Graph, filename: str) -> None:
 ```
-La primera crea el graf de la fusió dels altres dos, la següent mostra interectivament el graf i finalment, `plot_city_buses` mostra el graf amb el mapa de Barcelona de fons.
+La primera crea el graf de la fusió dels altres dos, la següent mostra interectivament el graf, `plot_city` dibuixa el graf dels carrers de Barcelona a un staticmap, i finalment, `plotC` guarda l'anterior dibuix a un arxiu anomenat 'filename'.
 
 
 ### Funions pel path
