@@ -2,7 +2,7 @@ from dataclasses import dataclass
 from bs4 import BeautifulSoup
 import urllib.request as ur
 import json
- 
+
 
 @dataclass
 class Film:
@@ -48,50 +48,47 @@ def read() -> Billboard:
                 'User-Agent': 'Chrome/35.0.1916.47'})
         r = ur.urlopen(req)
         soup = BeautifulSoup(r, "lxml")
-        # To only extract the current day's information
         sList = soup.find_all('div', class_="tabs_box_pan item-0")
         for s in sList:
             moviesList = s.find_all('div', class_="item_resa")
 
             for movie in moviesList:
-                # Extract cinema information
+
+                # Extract film information
+                film_data = movie.find('div', class_='j_w').get('data-movie')
+                film_info = json.loads(film_data)
+                title = film_info['title']
+                genre = film_info['genre'][0]
+                directors = film_info['directors']
+                actors = film_info['actors']
+
+                # Extract cinema and time information
                 cinema_data = movie.find(
                     'div', class_='j_w').get('data-theater')
                 cinema_info = json.loads(cinema_data)
                 cinema_name = cinema_info['name']
                 cinema_address = cinema_info['city']
 
-                if cinema_address == 'Barcelona': # We only consider cinemas of Barcelona
-                    # Extract film information
-                    film_data = movie.find(
-                        'div', class_='j_w').get('data-movie')
-                    film_info = json.loads(film_data)
-                    title = film_info['title']
-                    genre = film_info['genre'][0]
-                    directors = film_info['directors']
-                    actors = film_info['actors']
+                time_element = movie.find('ul', class_='list_hours').find('em')
+                times = json.loads(time_element.get('data-times'))
 
-                    # Extract time information
-                    time_element = movie.find(
-                        'ul', class_='list_hours').find('em')
-                    times = json.loads(time_element.get('data-times'))
+                # Create Film object
+                film = Film(title, genre, directors, actors)
 
-                    # Create Film object
-                    film = Film(title, genre, directors, actors)
+                # Create Cinema object
+                cinema = Cinema(cinema_name, cinema_address)
 
-                    # Create Cinema object
-                    cinema = Cinema(cinema_name, cinema_address)
+                # Create Projection object
+                projection = Projection(film, cinema, (times[0].split(':')[0],
+                                        times[0].split(':')[1]), language='')
 
-                    # Create Projection object
-                    projection = Projection(film, cinema, (times[0].split(':')[0],
-                                            times[0].split(':')[1]), language='')
+                # Add objects to the respective lists
+                if film not in lfilms:
+                    lfilms.append(film)
 
-                    # Add objects to the respective lists
-                    if film not in lfilms:
-                        lfilms.append(film)
+                lcinemas.append(cinema)
 
-                    lcinemas.append(cinema)
-                    lprojections.append(projection)
+                lprojections.append(projection)
 
     # Create Billboard object
     billboard = Billboard(
@@ -105,7 +102,6 @@ def read() -> Billboard:
 def search_by_title(name: str, B: Billboard) -> list[Projection]:
     """ Given a name, returns a list of the projections
         that include this name in the title of the film"""
-
     list_films: list[Projection] = list()
     for f in B.projections:
         if f.film.title == name:
