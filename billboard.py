@@ -2,7 +2,7 @@ from dataclasses import dataclass
 from bs4 import BeautifulSoup
 import urllib.request as ur
 import json
-
+ 
 
 @dataclass
 class Film:
