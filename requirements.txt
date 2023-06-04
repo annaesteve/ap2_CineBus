@@ -1,1 +1,12 @@
 pip install scikit-learn
+pip install matplotlib.pyplot
+pip install networkx
+pip install osmnx
+pip install staticmap
+pip install beautifulSoup4
+pip install lxml
+pip install matplotlib.image
+pip install requests
+pip install tabulate
+pip install yogi
+pip install 
