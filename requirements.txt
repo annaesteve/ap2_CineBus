@@ -9,3 +9,4 @@ pip install matplotlib.image
 pip install requests
 pip install tabulate
 pip install yogi
+pip install math
