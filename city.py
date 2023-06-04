@@ -6,6 +6,7 @@ import pickle
 import os
 import staticmap
 import matplotlib.image as mpimg
+import buses
 
 CityGraph : TypeAlias = nx.Graph
 BusesGraph: TypeAlias = nx.Graph
@@ -94,7 +95,6 @@ def build_city_graph(g: OsmnxGraph, g1: nx.Graph, g2: BusesGraph) -> CityGraph:
         nearest_node = ox.distance.nearest_nodes(g, atributtes['coordinate'][0], atributtes['coordinate'][1])
         g1.add_edge(node, nearest_node, length= 0.0)
 
-    print(g1.nodes(data = True))
     return g1
 
 
@@ -115,6 +115,7 @@ def find_path(ox_g: OsmnxGraph, g: CityGraph, src: Coord, dst: Coord) -> Path:
 
     path: Path = nx.shortest_path(g, source=start_node, target=end_node, weight= 'lenght')
 
+    print(path)
     return path
 
 
@@ -161,3 +162,14 @@ def plot_interactive(filename:str)-> None:
         print("Arxiu no trobat")
     except IOError:
         print("Error durant la lectura de l'arxiu.")
+
+def main()-> None:
+    g = get_osmnx_graph()
+    G = get_simplified_graph(g)
+
+    city = build_city_graph(g, G, buses.define_nodes())
+
+    find_path(g, city, 2.1497259, 41.4067781)
+
+if __name__ == '__main__':
+    main()
